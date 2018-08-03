@@ -12,6 +12,9 @@ import android.widget.Button;
 import com.example.nifteam.AndroidUserDemoApp2.Mbaas.Callback;
 import com.example.nifteam.AndroidUserDemoApp2.Mbaas.Mbaas;
 import com.example.nifteam.AndroidUserDemoApp2.R;
+import com.example.nifteam.AndroidUserDemoApp2.Utils;
+import com.nifty.cloud.mb.core.NCMBException;
+import com.nifty.cloud.mb.core.NCMBUser;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -46,14 +49,39 @@ public class AnonymousFragment extends Fragment implements View.OnClickListener 
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_sign_in:
-                Mbaas.signinByAnonymousID(getContext(), new Callback() {
-                    @Override
-                    public void onClickOK() {
-
-                    }
-                });
+                signinByAnonymousID();
                 break;
 
         }
+    }
+
+    private void signinByAnonymousID() {
+        Utils.showLoading(getContext());
+        Mbaas.signinByAnonymousID(new Callback() {
+            @Override
+            public void onSuccess(NCMBUser ncmbUser) {
+                Utils.hideLoading();
+                Mbaas.userSuccess(getContext().getResources().getText(R.string.anonymous_login_success).toString()
+                        , ncmbUser, getContext(), new Mbaas.CallbackButtonOK() {
+                            @Override
+                            public void onClickOK() {
+
+                            }
+                        });
+            }
+
+            @Override
+            public void onSuccess() {
+                Utils.hideLoading();
+            }
+
+            @Override
+            public void onFailure(NCMBException e) {
+                Utils.hideLoading();
+                Mbaas.userError(getContext().getResources().getText(R.string.anonymous_login_failure).toString()
+                        , e, getContext());
+            }
+        });
+
     }
 }

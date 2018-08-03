@@ -14,6 +14,8 @@ import com.example.nifteam.AndroidUserDemoApp2.Mbaas.Callback;
 import com.example.nifteam.AndroidUserDemoApp2.Mbaas.Mbaas;
 import com.example.nifteam.AndroidUserDemoApp2.R;
 import com.example.nifteam.AndroidUserDemoApp2.Utils;
+import com.nifty.cloud.mb.core.NCMBException;
+import com.nifty.cloud.mb.core.NCMBUser;
 
 import java.util.Objects;
 
@@ -85,10 +87,48 @@ public class IDPwdFragment extends Fragment implements View.OnClickListener {
         } else if (!edtSignupPwd.getText().toString().equals(edtSignupPwdConfirm.getText().toString())) {
             Utils.showDialog(getContext(), Objects.requireNonNull(getContext()).getResources().getText(R.string.message_error_pwd_do_not_match).toString());
         } else {
-            Mbaas.onSignupByID(edtSignupId.getText().toString(), edtSignupPwd.getText().toString(), getContext(), new Callback() {
+            Utils.showLoading(getContext());
+            Mbaas.onSignupByID(edtSignupId.getText().toString(), edtSignupPwd.getText().toString(), new Callback() {
                 @Override
-                public void onClickOK() {
-                    Utils.clearField(mainContainer);
+                public void onSuccess(NCMBUser ncmbUser) {
+
+                }
+
+                @Override
+                public void onSuccess() {
+
+                    Mbaas.signinByID(edtSignupId.getText().toString(), edtSignupPwd.getText().toString(), new Callback() {
+                        @Override
+                        public void onSuccess(NCMBUser ncmbUser) {
+                            Utils.hideLoading();
+                            Mbaas.userSuccess(getContext().getResources().getText(R.string.login_success).toString(),
+                                    ncmbUser, getContext(), new Mbaas.CallbackButtonOK() {
+                                        @Override
+                                        public void onClickOK() {
+                                            Utils.clearField(mainContainer);
+                                        }
+                                    });
+                        }
+
+                        @Override
+                        public void onSuccess() {
+
+                        }
+
+                        @Override
+                        public void onFailure(NCMBException e) {
+                            Utils.hideLoading();
+                            Mbaas.userError(getContext().getResources().getText(R.string.id_pw_login_failure).toString()
+                                    , e, getContext());
+                        }
+                    });
+                }
+
+                @Override
+                public void onFailure(NCMBException e) {
+                    Utils.hideLoading();
+                    Mbaas.userError(getContext().getResources().getText(R.string.id_pw_registration_failure).toString()
+                            , e, getContext());
                 }
             });
         }
@@ -98,10 +138,30 @@ public class IDPwdFragment extends Fragment implements View.OnClickListener {
         if (Utils.isBlankOrEmpty(edtSigninId) || Utils.isBlankOrEmpty(edtSigninPwd)) {
             Utils.showDialog(getContext(), Objects.requireNonNull(getContext()).getResources().getText(R.string.message_error_not_input).toString());
         } else {
-            Mbaas.signinByID(edtSigninId.getText().toString(), edtSigninPwd.getText().toString(), getContext(), new Callback() {
+            Utils.showLoading(getContext());
+            Mbaas.signinByID(edtSigninId.getText().toString(), edtSigninPwd.getText().toString(), new Callback() {
                 @Override
-                public void onClickOK() {
-                    Utils.clearField(mainContainer);
+                public void onSuccess(NCMBUser ncmbUser) {
+                    Utils.hideLoading();
+                    Mbaas.userSuccess(getContext().getResources().getText(R.string.login_success).toString(),
+                            ncmbUser, getContext(), new Mbaas.CallbackButtonOK() {
+                                @Override
+                                public void onClickOK() {
+                                    Utils.clearField(mainContainer);
+                                }
+                            });
+                }
+
+                @Override
+                public void onSuccess() {
+
+                }
+
+                @Override
+                public void onFailure(NCMBException e) {
+                    Utils.hideLoading();
+                    Mbaas.userError(getContext().getResources().getText(R.string.id_pw_login_failure).toString()
+                            , e, getContext());
                 }
             });
         }

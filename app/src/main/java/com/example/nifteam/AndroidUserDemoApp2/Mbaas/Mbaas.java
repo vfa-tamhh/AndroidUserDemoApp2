@@ -11,40 +11,43 @@ import com.nifty.cloud.mb.core.NCMBUser;
 
 public class Mbaas {
 
-    public static void onSignupByID(final String userId, final String pwd, final Context context, final Callback callback) {
-        Utils.showLoading(context);
+    public interface CallbackButtonOK{
+        void onClickOK();
+    }
+
+    public static void onSignupByID(final String userId, final String pwd, final Callback callback) {
+
         NCMBUser user = new NCMBUser();
         user.setUserName(userId);
         user.setPassword(pwd);
         user.signUpInBackground(new DoneCallback() {
             @Override
             public void done(NCMBException e) {
-                Utils.hideLoading();
                 if (e != null) {
                     /* 処理失敗 */
-                    userError(context.getResources().getText(R.string.id_pw_registration_failure).toString()
-                            , e, context);
+                    callback.onFailure(e);
+
+
                 } else {
                     /* 処理成功 */
-                    signinByID(userId, pwd, context, callback);
+                    callback.onSuccess();
+
                 }
             }
         });
     }
 
-    public static void signinByID(String userId, String pwd, final Context context, final Callback callback) {
-        Utils.showLoading(context);
+    public static void signinByID(String userId, String pwd, final Callback callback) {
+
         try {
             NCMBUser.loginInBackground(userId, pwd, new LoginCallback() {
                 @Override
                 public void done(NCMBUser ncmbUser, NCMBException e) {
                     Utils.hideLoading();
                     if (e != null) {
-                        userError(context.getResources().getText(R.string.id_pw_login_failure).toString()
-                                , e, context);
+                        callback.onFailure(e);
                     } else {
-                        userSuccess(context.getResources().getText(R.string.login_success).toString(),
-                                ncmbUser, context, callback);
+                        callback.onSuccess(ncmbUser);
                     }
                 }
             });
@@ -54,71 +57,62 @@ public class Mbaas {
         }
     }
 
-    public static void signupByEmail(String mailAddress, final Context context, final Callback callback) {
-        Utils.showLoading(context);
+    public static void signupByEmail(String mailAddress, final Callback callback) {
+
         NCMBUser.requestAuthenticationMailInBackground(mailAddress, new DoneCallback() {
             @Override
             public void done(NCMBException e) {
-                Utils.hideLoading();
+
                 if (e != null) {
-                    userError(context.getResources().getText(R.string.email_pw_registration_failure).toString()
-                            , e, context);
+                    callback.onFailure(e);
+
                 } else {
-                    Utils.showDialog(context, context.getResources().getText(R.string.email_pw_registration_complete).toString()
-                            , new Utils.ClickListener() {
-                                @Override
-                                public void onOK() {
-                                    Utils.showDialog(context, context.getResources().getText(R.string.message_response_registration_complete).toString()
-                                            , new Utils.ClickListener() {
-                                                @Override
-                                                public void onOK() {
-                                                    callback.onClickOK();
-                                                }
-                                            });
-                                }
-                            });
+                    callback.onSuccess();
+
                 }
             }
         });
     }
 
-    public static void signinByEmail(String mailAddress, String pwd, final Context context, final Callback callback) {
-        Utils.showLoading(context);
+    public static void signinByEmail(String mailAddress, String pwd, final Callback callback) {
+
         NCMBUser.loginWithMailAddressInBackground(mailAddress, pwd, new LoginCallback() {
             @Override
             public void done(NCMBUser ncmbUser, NCMBException e) {
                 Utils.hideLoading();
                 if (e != null) {
                     /* 処理失敗 */
-                    userError(context.getResources().getText(R.string.email_pw_login_failure).toString(), e, context);
+                    callback.onFailure(e);
+
                 } else {
                     /* 処理成功 */
-                    userSuccess(context.getResources().getText(R.string.email_pw_login_success).toString(), ncmbUser, context, callback);
+                    callback.onSuccess(ncmbUser);
+
                 }
             }
         });
     }
 
-    public static void signinByAnonymousID(final Context context, final Callback callback) {
-        Utils.showLoading(context);
+    public static void signinByAnonymousID(final Callback callback) {
+
         NCMBUser.loginWithAnonymousInBackground(new LoginCallback() {
             @Override
             public void done(NCMBUser ncmbUser, NCMBException e) {
-                Utils.hideLoading();
+
                 if (e != null) {
                     /* 処理失敗 */
-                    userError(context.getResources().getText(R.string.anonymous_login_failure).toString()
-                            , e, context);
+                    callback.onFailure(e);
+
                 } else {
                     /* 処理成功 */
-                    userSuccess(context.getResources().getText(R.string.anonymous_login_success).toString()
-                            , ncmbUser, context, callback);
+                    callback.onSuccess(ncmbUser);
+
                 }
             }
         });
     }
 
-    private static void userSuccess(String message, NCMBUser user, final Context context, final Callback callback) {
+    public static void userSuccess(String message, NCMBUser user, final Context context, final CallbackButtonOK callback) {
         String sDisplay = message + " objectId: " + user.getObjectId();
         Utils.showDialog(context, sDisplay, new Utils.ClickListener() {
             @Override
@@ -134,7 +128,7 @@ public class Mbaas {
         });
     }
 
-    private static void userError(String message, NCMBException error, Context context) {
+    public static void userError(String message, NCMBException error, Context context) {
         String sDisplay = message + " " + error.getMessage();
         Utils.showDialog(context, sDisplay);
     }
