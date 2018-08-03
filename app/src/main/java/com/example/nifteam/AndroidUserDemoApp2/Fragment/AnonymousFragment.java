@@ -2,7 +2,7 @@ package com.example.nifteam.AndroidUserDemoApp2.Fragment;
 
 
 import android.os.Bundle;
-import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,7 +12,6 @@ import android.widget.Button;
 import com.example.nifteam.AndroidUserDemoApp2.Mbaas.Callback;
 import com.example.nifteam.AndroidUserDemoApp2.Mbaas.Mbaas;
 import com.example.nifteam.AndroidUserDemoApp2.R;
-import com.example.nifteam.AndroidUserDemoApp2.Utils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -31,14 +30,14 @@ public class AnonymousFragment extends Fragment implements View.OnClickListener 
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_anonymous, container, false);
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         ButterKnife.bind(this, view);
         btnSignin.setOnClickListener(this);
     }

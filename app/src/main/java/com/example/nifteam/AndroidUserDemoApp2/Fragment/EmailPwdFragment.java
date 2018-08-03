@@ -2,6 +2,7 @@ package com.example.nifteam.AndroidUserDemoApp2.Fragment;
 
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,8 @@ import com.example.nifteam.AndroidUserDemoApp2.Mbaas.Callback;
 import com.example.nifteam.AndroidUserDemoApp2.Mbaas.Mbaas;
 import com.example.nifteam.AndroidUserDemoApp2.R;
 import com.example.nifteam.AndroidUserDemoApp2.Utils;
+
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -42,14 +45,14 @@ public class EmailPwdFragment extends Fragment implements View.OnClickListener {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_email_pwd, container, false);
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         ButterKnife.bind(this, view);
         btnSignup.setOnClickListener(this);
         btnSignin.setOnClickListener(this);
@@ -69,7 +72,7 @@ public class EmailPwdFragment extends Fragment implements View.OnClickListener {
 
     private void signup() {
         if (Utils.isBlankOrEmpty(edtSignupMail)) {
-            Utils.showDialog(getContext(), getContext().getResources().getText(R.string.message_error_email_do_not_input).toString());
+            Utils.showDialog(getContext(), Objects.requireNonNull(getContext()).getResources().getText(R.string.message_error_email_do_not_input).toString());
         } else {
             Mbaas.signupByEmail(edtSignupMail.getText().toString(), getContext(), new Callback() {
                 @Override
@@ -82,7 +85,7 @@ public class EmailPwdFragment extends Fragment implements View.OnClickListener {
 
     private void signin() {
         if (Utils.isBlankOrEmpty(edtSigninMail) || Utils.isBlankOrEmpty(edtSigninPwd)) {
-            Utils.showDialog(getContext(), getContext().getResources().getText(R.string.message_error_not_input).toString());
+            Utils.showDialog(getContext(), Objects.requireNonNull(getContext()).getResources().getText(R.string.message_error_not_input).toString());
         } else {
             Mbaas.signinByEmail(edtSigninMail.getText().toString(), edtSigninPwd.getText().toString(), getContext(), new Callback() {
                 @Override

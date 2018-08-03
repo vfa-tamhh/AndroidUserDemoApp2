@@ -1,16 +1,18 @@
 package com.example.nifteam.AndroidUserDemoApp2;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.nifteam.AndroidUserDemoApp2.Fragment.AnonymousFragment;
@@ -18,14 +20,22 @@ import com.example.nifteam.AndroidUserDemoApp2.Fragment.EmailPwdFragment;
 import com.example.nifteam.AndroidUserDemoApp2.Fragment.IDPwdFragment;
 import com.nifty.cloud.mb.core.NCMB;
 
+import java.util.Objects;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MainActivity extends AppCompatActivity {
 
-    //This is our viewPager
-    private ViewPager viewPager;
     IDPwdFragment idPwdFragment;
     EmailPwdFragment emailPwdFragment;
     AnonymousFragment anonymousFragment;
     TextView title;
+    @BindView(R.id.viewpager)
+    ViewPager viewPager;
+    @BindView(R.id.navigation)
+    BottomNavigationView navigation;
+
 
     MenuItem prevMenuItem;
 
@@ -61,15 +71,14 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        ButterKnife.bind(this);
+
+        Objects.requireNonNull(getSupportActionBar()).setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setCustomView(R.layout.actionbar);
-        title=(TextView)findViewById(getResources().getIdentifier("action_bar_title", "id", getPackageName()));
+        title = findViewById(getResources().getIdentifier("action_bar_title", "id", getPackageName()));
         title.setText(getResources().getText(R.string.id_pw_title));
 
-        //Initializing viewPager
-        viewPager = (ViewPager) findViewById(R.id.viewpager);
 
-        final BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         for (int i = 0; i < navigation.getChildCount(); i++) {
             View viewItem = navigation.getChildAt(i);
             viewItem.setY(-32);
@@ -89,7 +98,6 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     navigation.getMenu().getItem(0).setChecked(false);
                 }
-                Log.d("page", "onPageSelected: " + position);
                 navigation.getMenu().getItem(position).setChecked(true);
                 prevMenuItem = navigation.getMenu().getItem(position);
 
@@ -100,17 +108,30 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
         //Disable ViewPager Swipe
-       viewPager.setOnTouchListener(new View.OnTouchListener()
-        {
+        viewPager.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event)
-            {
+            public boolean onTouch(View v, MotionEvent event) {
                 return true;
             }
         });
 
         setupViewPager(viewPager);
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        View view = getCurrentFocus();
+        if (view != null && (ev.getAction() == MotionEvent.ACTION_UP || ev.getAction() == MotionEvent.ACTION_MOVE) && view instanceof EditText && !view.getClass().getName().startsWith("android.webkit.")) {
+            int scrcoords[] = new int[2];
+            view.getLocationOnScreen(scrcoords);
+            float x = ev.getRawX() + view.getLeft() - scrcoords[0];
+            float y = ev.getRawY() + view.getTop() - scrcoords[1];
+            if (x < view.getLeft() || x > view.getRight() || y < view.getTop() || y > view.getBottom())
+                ((InputMethodManager) Objects.requireNonNull(this.getSystemService(Context.INPUT_METHOD_SERVICE))).hideSoftInputFromWindow((this.getWindow().getDecorView().getApplicationWindowToken()), 0);
+        }
+        return super.dispatchTouchEvent(ev);
     }
 
     private void setupViewPager(ViewPager viewPager) {
