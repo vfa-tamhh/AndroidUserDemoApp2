@@ -46,15 +46,15 @@ public class MainActivity extends AppCompatActivity {
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    title.setText(getResources().getText(R.string.id_pw_title));
+                    setNavigationTitle(0, title);
                     viewPager.setCurrentItem(0);
                     return true;
                 case R.id.navigation_dashboard:
-                    title.setText(getResources().getText(R.string.email_pw_title));
+                    setNavigationTitle(1, title);
                     viewPager.setCurrentItem(1);
                     return true;
                 case R.id.navigation_notifications:
-                    title.setText(getResources().getText(R.string.anonymous_title));
+                    setNavigationTitle(2, title);
                     viewPager.setCurrentItem(2);
                     return true;
             }
@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        NCMB.initialize(this.getApplicationContext(),"「YOUR_NCMB_APPLICATION_KEY」", "「YOUR_NCMB_CLIENT_KEY」");
+        NCMB.initialize(this.getApplicationContext(), "「YOUR_NCMB_APPLICATION_KEY」", "「YOUR_NCMB_CLIENT_KEY」");
 
         setContentView(R.layout.activity_main);
 
@@ -97,8 +97,10 @@ public class MainActivity extends AppCompatActivity {
                     prevMenuItem.setChecked(false);
                 } else {
                     navigation.getMenu().getItem(0).setChecked(false);
+                    setNavigationTitle(0, title);
                 }
                 navigation.getMenu().getItem(position).setChecked(true);
+                setNavigationTitle(position, title);
                 prevMenuItem = navigation.getMenu().getItem(position);
 
             }
@@ -143,5 +145,19 @@ public class MainActivity extends AppCompatActivity {
         adapter.addFragment(emailPwdFragment);
         adapter.addFragment(anonymousFragment);
         viewPager.setAdapter(adapter);
+    }
+
+    private void setNavigationTitle(int position, TextView textView) {
+        switch (position) {
+            case 0:
+                textView.setText(getResources().getText(R.string.id_pw_title));
+                break;
+            case 1:
+                textView.setText(getResources().getText(R.string.email_pw_title));
+                break;
+            case 2:
+                textView.setText(getResources().getText(R.string.anonymous_title));
+                break;
+        }
     }
 }
